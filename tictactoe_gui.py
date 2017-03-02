@@ -5,19 +5,31 @@ import sys
 import time
 
 class GuiGame():
-    """Game GUI... creates playboard for a round"""
+    # TODO: change to frame child
+
+    """
+    Game GUI... creates playboard for a round
+    master: tkinter master
+    board_size: sets playboard size
+    p1: player 1
+    p2: player 2
+    """
     def __init__(self, master, board_size, p1, p2):
         self.frame = tk.Frame(master)
         self.frame.pack(expand=tk.NO)
         self.master = master
         self.master.title("Tic Tac Toe")
+
         self.board_size = board_size
         self.board = Board(board_size)
         self.p1 = p1
         self.p2 = p2
-        self.current_player = self.p1
-        self.round_over = False
-        self.turn = 0
+
+        self.choose_start_player()  # sets current player
+        self.round_over = False # if round over
+        self.turn = 0   # rounds counter
+
+        """===================== GUI shizz =============================="""
 
         # font
         self.main_font = tkf.Font(family='Helvetica', size=12, weight='bold')
@@ -44,8 +56,10 @@ class GuiGame():
         self.warning_label = tk.Label(self.warn_frame, text="", bg='white', fg='red')
         self.warning_label.pack()
 
+    """============= methods ======================"""
+
     def create_board(self):
-        """creates the play board"""
+        """creates the playboard"""
         # playboard frame
         self.board_frame = tk.Frame(self.frame, )
         self.board_frame.pack(fill="both", expand=tk.NO)
@@ -59,29 +73,20 @@ class GuiGame():
     def play(self):
         pass
 
-    def its_draw(self):
-        """check if round is a draw"""
-        return self.turn == self.board_size ** 2
 
-    def its_win(self):
-        """check if round was won"""
-        return self.board.check_win(self.current_player)
-
-    def round_end(self):
-        """check if round has end"""
-        return self.its_win() or self.its_draw()
 
     def click(self, button):
         """represents a click action on button"""
-        if not self.round_end():
+        if not self.round_end():    # if game hastn't ended
             # TODO: add if ai
+
             coords = self.get_bttn_coords(button)   # retrieve buttons coordinates
             if self.can_move(coords):   # if correct coords
                 self.move(coords)   # place symbol
                 self.turn += 1          # iterate turns
 
                 if not self.round_end():    # if not draw or won
-                    self.change_players()   # change active player if not won
+                    self.change_players()   # change current player
                 else:
                     if self.its_win():    # if round won
                         self.win_handle()
@@ -92,6 +97,18 @@ class GuiGame():
                         self.new_round()        # start new round
                     else:
                         quit()      # quit if player doesnt wants another round
+
+    def its_draw(self):
+        """check if round is a draw"""
+        return self.turn == self.board_size ** 2
+
+    def its_win(self):
+        """check if round was won by one of the players"""
+        return self.board.check_win(self.current_player)
+
+    def round_end(self):
+        """check if round has ended"""
+        return self.its_win() or self.its_draw()
 
     def win_handle(self):
         """handles win result"""
@@ -123,19 +140,31 @@ class GuiGame():
         self.buttons[y][x].configure(text=self.current_player.symbol)
 
     def move(self, coords):
+        """represents players move, places maark on buttons coordinates"""
         y, x = coords
         self.board.place_symbol(x, y, self.current_player.symbol)   # place to board
-        self.place_symbol(x, y)   # place to gui grid (chenge button text)
+        self.place_symbol(x, y)   # place to button
 
     def new_round(self):
-        """resets board for another game"""
+        """sets stuff for another round of the game"""
         # TODO: not destroy?
-        self.reset()
-        self.turn = 0
-        self.board.reset()
+        self.reset_buttons()        # resets buttons board
+        self.turn = 0       # anulates the score
+        self.board.reset()  # resets board
+        self.set_next_start_player()  # sets previous round winner
+        self.choose_start_player()  # sets start player
+        self.update_score_label() # updates score labels
+        self.clear_warning_label()  #clear warning label
 
-    def reset(self):
-        """resets the board"""
+    def clear_warning_label(self):
+        self.warning_label.configure(text='')
+
+    def update_score_label(self):
+        """updates score"""
+        self.score_label.configure(text="Score: {} : {}".format(self.p1.score, self.p2.score))
+
+    def reset_buttons(self):
+        """resets the board, replaces symbols on buttons with empty string"""
         for i in range(self.board_size):
             for j in range(self.board_size):
                 self.buttons[i][j].configure(text='')
@@ -157,12 +186,22 @@ class GuiGame():
         """changes players names on the label"""
         self.player_label.configure(text="Player:  {}".format(self.current_player.name))
 
-    def start_player(self):
+    def choose_start_player(self):
         """chooses starting player"""
-        if self.p1.won_previous():
-            self.current_player = self.p1
-        else:
+        if self.p2.won_previous:
             self.current_player = self.p2
+        else:
+            self.current_player = self.p1
+
+
+    def set_next_start_player(self):
+        """set winners won_previous attribute to true, defeaters to false"""
+        if self.current_player == self.p1:
+            self.p1.prev_won()
+            self.p2.prev_lost()
+        else:
+            self.p2.prev_won()
+            self.p1.prev_lost()
 
     def win_message(self):
         """message window, informs about win"""
@@ -178,10 +217,7 @@ class GuiGame():
 
 # TODO: score chage
 # TODO: scalable
-# TODO: quit and play again
 # TODO: message window
-# TODO: if can place, print OK, place_symbol,
-# TODO: change player, else: NOK  and again
 # TODO: run without console
 # TODO: make exe
 # TODO: text size
