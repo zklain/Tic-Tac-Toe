@@ -86,7 +86,6 @@ class GuiGame():
                     if self.its_win():    # if round won
                         self.win_handle()
                     elif self.its_draw():   # if draw
-                        print('draw')
                         self.draw_handle()
 
                     if self.ask_play_again():     # ask whether to play again
@@ -97,20 +96,17 @@ class GuiGame():
     def win_handle(self):
         """handles win result"""
         self.win_message()
-        print("player {} wins".format(self.current_player.name))
         self.current_player.add_score()
         self.current_player.prev_won()
 
     def draw_handle(self):
         """handles draw result"""
-        print("It's a draw")
         self.draw_message()
 
     def get_bttn_coords(self, button):
         """retrieves button coordinates"""
         info = button.grid_info()
         coords = (info["row"], info["column"])
-        print (coords) # debug
         return coords
 
     def can_move(self, coords):
@@ -130,7 +126,6 @@ class GuiGame():
         y, x = coords
         self.board.place_symbol(x, y, self.current_player.symbol)   # place to board
         self.place_symbol(x, y)   # place to gui grid (chenge button text)
-        self.board.print_board()    # debug
 
     def new_round(self):
         """resets board for another game"""
@@ -194,6 +189,7 @@ class GuiGame():
 # TODO: play again message
 # TODO: GUI for menu, Gui for game
 # TODO: AI
+# TODO: makegui inherit from game
 
 
 class Board(object):
@@ -318,32 +314,33 @@ class AIPlayer(Player):
         pass
 
 
-
-class TicTacToe(object):
-    def __init__(self, gui):
-        self.p1 = None
-        self.p2 = None
-        self.board_size = 5
-        self.game = None
-        self.gui = gui
-
-    def set_players(self):
-        self.p1 = Player("Attila", "X ", False)
-        self.p2 = Player("Dusan", "O ", False)
-
-    def game_settings(self):
-        self.board_size = 5
-
-    def start_game(self):
-        self.game = GuiGame(self.p1, self.p2)
-
+# class TicTacToe(object):
+#     def __init__(self, gui):
+#         self.p1 = None
+#         self.p2 = None
+#         self.board_size = 5
+#         self.game = None
+#         self.gui = gui
 #
-# ttt = TicTacToe(True)
-# ttt.set_players()
-# ttt.start_game()
+#     def set_players(self):
+#         self.p1 = Player("Attila", "X ", False)
+#         self.p2 = Player("Dusan", "O ", False)
+#
+#     def game_settings(self):
+#         self.board_size = 5
+#
+#     def start_game(self):
+#         self.game = GuiGame(self.p1, self.p2)
+
+    # def player_settings():
+    #     pass
+    #
+#     def game_settings():
+#         pass
+
 
 p1 = HumanPlayer("Peter", "X ")
 p2 = HumanPlayer("Zdenko", "O ")
 root = tk.Tk()
-game = GuiGame(root, 5, p1, p2)
+game = GuiGame(root, 3, p1, p2)
 root.mainloop()
