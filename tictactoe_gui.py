@@ -83,18 +83,21 @@ class GuiGame():
                 self.move(coords)   # place symbol
                 self.turn += 1          # iterate turns
 
-                if not self.round_end():    # if not draw or won
-                    self.change_players()   # change current player
-                else:
-                    if self.its_win():    # if round won
+                if self.round_end():    # if draw or won
+
+                    if self.its_win():      # if round won
                         self.win_handle()
-                    elif self.its_draw():   # if draw
+                    else:                   # if draw
                         self.draw_handle()
 
-                    if self.ask_play_again():     # ask whether to play again
+                    if self.ask_play_again():   # ask whether to play again
                         self.new_round()        # start new round
                     else:
                         quit()      # quit if player doesnt wants another round
+                else:
+                    self.change_players()   # change current player
+
+
 
     def its_draw(self):
         """check if round is a draw"""
@@ -110,9 +113,8 @@ class GuiGame():
 
     def win_handle(self):
         """handles win result"""
-        self.win_message()
-        self.current_player.add_score()
-        self.current_player.prev_won()
+        self.win_message()              # win messagebox
+        self.current_player.add_score() # adds score to winner
 
     def draw_handle(self):
         """handles draw result"""
@@ -127,10 +129,10 @@ class GuiGame():
     def can_move(self, coords):
         """check if can place symbol on given coordinates"""
         if self.board.already_taken(coords):
-            self.warning_handle('Already taken!', 'red')
+            self.warning_handle('Already taken!', 'red') # red warning
             return False
         else:
-            self.warning_handle('OK!', 'green')
+            self.warning_handle('OK!', 'green') # green OK if not taken
             return True
 
     def place_symbol(self, x, y):
@@ -145,16 +147,16 @@ class GuiGame():
 
     def new_round(self):
         """sets stuff for another round of the game"""
-        # TODO: not destroy?
         self.reset_buttons()        # resets buttons board
-        self.turn = 0       # anulates the score
-        self.board.reset()  # resets board
+        self.turn = 0               # anulates the score
+        self.board.reset()          # resets board
         self.set_next_start_player()  # sets previous round winner
         self.choose_start_player()  # sets start player
-        self.update_score_label() # updates score labels
-        self.clear_warning_label()  #clear warning label
+        self.update_score_label()   # updates score labels
+        self.clear_warning_label()  # clear warning label
 
     def clear_warning_label(self):
+        """clears warning label messages"""
         self.warning_label.configure(text='')
 
     def update_score_label(self):
@@ -213,7 +215,6 @@ class GuiGame():
         return tkm.askyesno("Play Again?", "Would you like another round?")
 
 # TODO: scalable
-# TODO: message window
 # TODO: run without console
 # TODO: make exe
 # TODO: text size
@@ -322,6 +323,7 @@ class Board(object):
 class Player(object):
     """
     represents a player
+    name: players name
     symbol: players symbol
     """
     def __init__(self, name, symbol):
@@ -341,12 +343,12 @@ class Player(object):
         self.won_previous = False
 
 class HumanPlayer(Player):
-    """docstring for HumanPlayer."""
+    """Human controlled player"""
     def __init__(self, name, symbol):
         super(HumanPlayer, self).__init__(name, symbol)
 
 class AIPlayer(Player):
-    """docstring for AIPlayer."""
+    """Computer controlled player"""
     def __init__(self, name, symbol):
         super(AIPlayer, self).__init__(name, symbol)
 
@@ -358,8 +360,8 @@ class AIPlayer(Player):
         moves = board.get_aviable_moves()
 
 
-
 class TicTacToe(object):
+    """Main class, starts the game, has the settings and shit"""
     def __init__(self):
         self.p1 = None
         self.p2 = None
