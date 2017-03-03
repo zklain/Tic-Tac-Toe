@@ -16,7 +16,7 @@ class GuiGame():
     """
     def __init__(self, master, board_size, p1, p2):
         self.frame = tk.Frame(master)
-        self.frame.pack(expand=tk.NO)
+        self.frame.pack(expand=False)
         self.master = master
         self.master.title("Tic Tac Toe")
 
@@ -28,35 +28,55 @@ class GuiGame():
         self.choose_start_player()  # sets current player
         self.round_over = False # if round over
         self.turn = 0   # rounds counter
+        self.current_round = 0
+        self.of_rounds = 0 # TODO: change, pass as parameter
 
-        """===================== GUI shizz =============================="""
+        self.create_widgets()
 
-        # font
-        self.main_font = tkf.Font(family='Helvetica', size=12, weight='bold')
+    def create_widgets(self):
+        # fonts
+        self.BIG_FONT = tkf.Font(family='Helvetica', size=12, weight='bold')
+        self.NORM_FONT = tkf.Font(family='Helvetica', size=10)
+        self.WARN_FONT = tkf.Font(family='Helvetica', size=10, weight='bold')
 
+        # TODO: text and shizz in parent only???
         #info frame
         self.info_frame = tk.Frame(self.frame, bg="white")
-        self.info_frame.pack(fill="both", expand=tk.NO)
+        self.info_frame.pack(fill="both", expand=True)
+        #round label
+        self.round_label = tk.Label(self.info_frame, text="Round: {}".format(self.current_round), bg="white", fg="black", font=self.NORM_FONT)
+        self.round_label.pack(side=tk.TOP, expand=True, fill='x')
 
         #player label
-        self.player_label = tk.Label(self.info_frame, text="Player:  {}".format(self.current_player.name), bg="white", fg="black")
-        self.player_label.pack(side=tk.LEFT)
+        self.player_label = tk.Label(self.info_frame, text="Player:  {}".format(self.current_player.name), bg="white", fg="black", font=self.NORM_FONT)
+        self.player_label.pack(side=tk.LEFT, expand=True, fill='x')
+
 
         # score label
         self.score_label = tk.Label(self.info_frame,
-        text="Score: {} : {}".format(self.p1.score, self.p2.score), bg="white", fg="black")
-        self.score_label.pack(side=tk.RIGHT)
+        text="Score: {} : {}".format(self.p1.score, self.p2.score), bg="white", fg="black", font=self.NORM_FONT)
+        self.score_label.pack(side=tk.LEFT, expand=True, fill='x')
 
         # buttons
         self.create_board()
 
         #warning label
         self.warn_frame = tk.Frame(self.frame, bg='white')
-        self.warn_frame.pack(fill='both', expand=tk.NO)
-        self.warning_label = tk.Label(self.warn_frame, text="", bg='white', fg='red')
+        self.warn_frame.pack(fill='both', expand=True)
+        self.warning_label = tk.Label(self.warn_frame, text="", bg='white', fg='red', font=self.WARN_FONT)
         self.warning_label.pack()
 
-    """============= methods ======================"""
+        #game controll frame
+        self.controll_frame = tk.Frame(self.frame, bg='white')
+        self.controll_frame.pack(fill='both', expand=True)
+
+        #reset button
+        self.reset_button = tk.Button(self.controll_frame, text="reset", bg='white',font=self.NORM_FONT)
+        self.reset_button.pack(side=tk.LEFT, expand=True, fill='x')
+
+        #exit button
+        self.exit_button = tk.Button(self.controll_frame, text="exit", bg='white',font=self.NORM_FONT)
+        self.exit_button.pack(side=tk.RIGHT, expand=True, fill='x')
 
     def create_board(self):
         """creates the playboard"""
@@ -67,8 +87,14 @@ class GuiGame():
         self.buttons = [[None for _ in range(self.board_size)] for _ in range(self.board_size)]
         for i in range(self.board_size):
             for j in range(self.board_size):
-                self.buttons[i][j] = tk.Button(self.board_frame, height=3, width=7, font=self.main_font, text='', bg='white', command=lambda x=j, y=i: self.click(self.buttons[y][x]))
+                self.buttons[i][j] = tk.Button(self.board_frame, height=3, width=7, font=self.BIG_FONT, text='', bg='white', command=lambda x=j, y=i: self.click(self.buttons[y][x]))
                 self.buttons[i][j].grid(row=i, column=j)
+
+    # TODO: add rounds
+    # TODO: not quit program, quit to menu
+    # TODO: add really quit???
+    # TODO: show totol winner
+    # TODO: add reset button
 
     def play(self):
         pass
@@ -234,7 +260,7 @@ class Board(object):
     def __init__(self, size):
         self.size = size
         self.array =  [[''] * self.size for i in range(self.size)]
-        self.win_condition = size # TODO: you know...
+        self.win_condition = size if size < 5 else size-1  # TODO: you know...
 
     def print_board(self):
         """prints playboard"""
@@ -370,12 +396,17 @@ class TicTacToe(object):
         self.tk_root = tk.Tk()
         self.game = None
 
+    def get_player_name(self):
+        name = input("Player 1 (X), choose your name: ")
+        return name
 
     def set_players(self):
-        name1 = input("Player 1 (X), choose your name: ")
-        name2 = input("Player 2 (O), choose your name: ")
-        self.p1 = HumanPlayer(name1, "X")
-        self.p2 = HumanPlayer(name2, "O")
+        # name1 = input("Player 1 (X), choose your name: ")
+        # name2 = input("Player 2 (O), choose your name: ")
+        # self.p1 = HumanPlayer(self.get_player_name(), "X")
+        # self.p2 = HumanPlayer(self.get_player_name(), "O")
+        self.p1 = HumanPlayer('one', "X")
+        self.p2 = HumanPlayer('two', "O")
 
     def game_settings(self):
         while True:
@@ -388,8 +419,9 @@ class TicTacToe(object):
 
     def start_game(self):
         self.set_players()
-        self.game_settings()
-        self.game = GuiGame(self.tk_root, self.board_size, self.p1, self.p2)
+        # self.game_settings()
+        # self.game = GuiGame(self.tk_root, self.board_size, self.p1, self.p2)
+        self.game = GuiGame(self.tk_root, 3, self.p1, self.p2)
         self.tk_root.mainloop()
 
 
