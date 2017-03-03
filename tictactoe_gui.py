@@ -67,13 +67,11 @@ class GuiGame():
         self.buttons = [[None for _ in range(self.board_size)] for _ in range(self.board_size)]
         for i in range(self.board_size):
             for j in range(self.board_size):
-                self.buttons[i][j] = tk.Button(self.board_frame, height=7, width=15, font=self.main_font, text='', bg='white', command=lambda x=j, y=i: self.click(self.buttons[y][x]))
+                self.buttons[i][j] = tk.Button(self.board_frame, height=3, width=7, font=self.main_font, text='', bg='white', command=lambda x=j, y=i: self.click(self.buttons[y][x]))
                 self.buttons[i][j].grid(row=i, column=j)
 
     def play(self):
         pass
-
-
 
     def click(self, button):
         """represents a click action on button"""
@@ -193,7 +191,6 @@ class GuiGame():
         else:
             self.current_player = self.p1
 
-
     def set_next_start_player(self):
         """set winners won_previous attribute to true, defeaters to false"""
         if self.current_player == self.p1:
@@ -215,7 +212,6 @@ class GuiGame():
         """asks player whether to play again"""
         return tkm.askyesno("Play Again?", "Would you like another round?")
 
-# TODO: score chage
 # TODO: scalable
 # TODO: message window
 # TODO: run without console
@@ -236,7 +232,7 @@ class Board(object):
     """
     def __init__(self, size):
         self.size = size
-        self.array =  [['_ '] * self.size for i in range(self.size)]
+        self.array =  [[''] * self.size for i in range(self.size)]
         self.win_condition = size # TODO: you know...
 
     def print_board(self):
@@ -254,7 +250,7 @@ class Board(object):
     def already_taken(self, coords):
         """check if cell is already taken"""
         pos = self.array[coords[0]][coords[1]]
-        return pos == 'O ' or pos == 'X '
+        return pos == 'O' or pos == 'X'
         # TODO: you know
 
 
@@ -312,7 +308,16 @@ class Board(object):
         return True
 
     def reset(self):
-        self.array = [['_ '] * self.size for i in range(self.size)]
+        self.array = [[''] * self.size for i in range(self.size)]
+
+    def is_empty(self, x, y):
+        return self.array[y][x] == ''
+
+    def get_ai_taken(self):
+        pass
+
+    def get_aviable_moves(self):
+        return [(i,j) for i in range(self.size) for j in range(self.size) if is_empty(j,i)]
 
 class Player(object):
     """
@@ -345,38 +350,54 @@ class AIPlayer(Player):
     def __init__(self, name, symbol):
         super(AIPlayer, self).__init__(name, symbol)
 
-
-    def move(board):
+    def find_best(aviable, taken):
         pass
 
 
-# class TicTacToe(object):
-#     def __init__(self, gui):
-#         self.p1 = None
-#         self.p2 = None
-#         self.board_size = 5
-#         self.game = None
-#         self.gui = gui
-#
-#     def set_players(self):
-#         self.p1 = Player("Attila", "X ", False)
-#         self.p2 = Player("Dusan", "O ", False)
-#
-#     def game_settings(self):
-#         self.board_size = 5
-#
-#     def start_game(self):
-#         self.game = GuiGame(self.p1, self.p2)
-
-    # def player_settings():
-    #     pass
-    #
-#     def game_settings():
-#         pass
+    def move(self, board):
+        moves = board.get_aviable_moves()
 
 
-p1 = HumanPlayer("Peter", "X ")
-p2 = HumanPlayer("Zdenko", "O ")
-root = tk.Tk()
-game = GuiGame(root, 3, p1, p2)
-root.mainloop()
+
+class TicTacToe(object):
+    def __init__(self):
+        self.p1 = None
+        self.p2 = None
+        self.board_size = 0
+        self.board = None
+        self.tk_root = tk.Tk()
+        self.game = None
+
+
+    def set_players(self):
+        name1 = input("Player 1 (X), choose your name: ")
+        name2 = input("Player 2 (O), choose your name: ")
+        self.p1 = HumanPlayer(name1, "X")
+        self.p2 = HumanPlayer(name2, "O")
+
+    def game_settings(self):
+        while True:
+            try:
+                n = int(input("Set board size: "))
+                self.board_size = n
+                return
+            except Exception as e:
+                print (e)
+
+    def start_game(self):
+        self.set_players()
+        self.game_settings()
+        self.game = GuiGame(self.tk_root, self.board_size, self.p1, self.p2)
+        self.tk_root.mainloop()
+
+
+#
+# p1 = HumanPlayer("Peter", "X")
+# p2 = HumanPlayer("Zdenko", "O")
+# root = tk.Tk()
+# game = GuiGame(root, 3, p1, p2)
+# root.mainloop()
+
+
+ttt = TicTacToe()
+ttt.start_game()
