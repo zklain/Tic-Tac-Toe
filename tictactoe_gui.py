@@ -651,7 +651,7 @@ ttt = TicTacToe()
 ttt.mainloop()
 
 # TODO: validate
-# TODO: 
+# TODO: rounds
 # TODO: handle excemptions, show em on wanring label
 # TODO: cykle frames?
 # TODO: change state instread of deleting shit
