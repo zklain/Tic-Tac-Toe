@@ -608,7 +608,7 @@ class GameSettings(tk.Frame):
 ================== TIC-TAC_TOE CLASS =================================
 ======================================================================
 """
-class TicTacToe(tk.TK):
+class TicTacToe(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         container = tk.Frame(self, bg='white')
