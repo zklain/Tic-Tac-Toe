@@ -77,11 +77,11 @@ class Game(tk.Frame):
         self.controll_frame.pack(fill='both', expand=True)
 
         #reset button
-        self.reset_button = tk.Button(self.controll_frame, text="reset", bg='white',font=self.controller.NORM_FONT, command=lambda: self.reset())
+        self.reset_button = tk.Button(self.controll_frame, text="Reset", bg='white',font=self.controller.NORM_FONT, command=lambda: self.reset())
         self.reset_button.pack(side=tk.LEFT, expand=True, fill='x')
 
         #exit button
-        self.exit_button = tk.Button(self.controll_frame, text="exit", bg='white',font=self.controller.NORM_FONT, command=lambda: controller.show_frame("StartMenu"))
+        self.exit_button = tk.Button(self.controll_frame, text="Exit", bg='white',font=self.controller.NORM_FONT, command=lambda: self.back_to_sett_menu())
         self.exit_button.pack(side=tk.RIGHT, expand=True, fill='x')
 
     def create_board(self):
@@ -95,7 +95,6 @@ class Game(tk.Frame):
             for j in range(self.board_size):
                 self.buttons[i][j] = tk.Button(self.board_frame, height=3, width=7, font=self.controller.BIG_FONT, text='', bg='white', command=lambda x=j, y=i: self.click(self.buttons[y][x]))
                 self.buttons[i][j].grid(row=i, column=j)
-
 
     def play(self):
         pass
@@ -120,7 +119,8 @@ class Game(tk.Frame):
                     if self.ask_play_again():   # ask whether to play again
                         self.new_round()        # start new round
                     else:
-                        quit()      # quit if player doesnt wants another round
+                        self.back_to_sett_menu()
+                              # quit if player doesnt wants another round
                 else:
                     self.change_players()   # change current player
 
@@ -200,7 +200,6 @@ class Game(tk.Frame):
         self.board.reset()
         self.choose_start_player()
 
-
     def warning_handle(self, message, color):
         """handles warning messages on warning label"""
         self.warning_label["fg"] = color
@@ -261,12 +260,14 @@ class Game(tk.Frame):
     def really_reset(self):
         pass
 
+    def back_to_sett_menu(self):
+        self.controller.show_frame("GameSettings")
+
 """
 ======================================================================
 ================== BOARD CLASS =======================================
 ======================================================================
 """
-
 class Board(object):
     """
     represents play board,
@@ -544,34 +545,31 @@ class GameSettings(tk.Frame):
         self.play_button = tk.Button(self.controll_frame, text="PLAY", bg='white', fg='green', font=self.controller.BIG_FONT, command=lambda: self.start_game())
         self.play_button.pack(side=tk.LEFT, expand=True, fill='x')
         # back button
-        self.back_button = tk.Button(self.controll_frame, text="Back", bg='white',font=self.controller.BIG_FONT, command=lambda: self.controller.show_frame("StartMenu"))
+        self.back_button = tk.Button(self.controll_frame, text="Menu", bg='white',font=self.controller.BIG_FONT, command=lambda: self.controller.show_frame("StartMenu"))
         self.back_button.pack(side=tk.RIGHT, expand=True, fill='x')
-
-    def get_player_name(self):
-        name = input("Player 1 (X), choose your name: ")
-        return name
 
     def set_players(self):
         # name2 = input("Player 2 (O), choose your name: ")
         # self.p1 = HumanPlayer(self.get_player_name(), "X")
         # self.p2 = HumanPlayer(self.get_player_name(), "O")
         name1 = self.p1_name.get()
-        print(name1)
-        name2 = self.p2_name.get()
-        print(name2)
         self.p1 = HumanPlayer(name1, "X")
-        self.p2 = HumanPlayer(name2, "O")
+        if not self.ai:
+            name2 = self.p2_name.get()
+            self.p2 = HumanPlayer(name2, "O")
 
     def set_board_size(self):
         self.board_size = int(self.b_size_entry.get())
-        print (self.board_size)
-
 
     def set_game(self):
         self.set_board_size()
         self.set_players()
         self.board = Board(self.board_size)
 
+    def check_all_correct(self):
+        # TODO: int, >, <
+        return self.board_size > 2 and self.board_size < 10
+        pass
 
     def check_all_set(self):
         # TODO: players names
@@ -646,19 +644,14 @@ class TicTacToe(tk.Tk):
 
     def add_frame(self, name, frame):
         self.frames[name] = frame
-        for f in self.frames:
-            print(self.frames[f], f)
-        print()
-        # self.frames[name].grid(row=0, column=0, sticky="nsew")
 
 
 # run game
 ttt = TicTacToe()
 ttt.mainloop()
 
-
-# TODO: start game with entries
 # TODO: validate
+# TODO: 
 # TODO: handle excemptions, show em on wanring label
 # TODO: cykle frames?
 # TODO: change state instread of deleting shit
