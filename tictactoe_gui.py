@@ -2,8 +2,7 @@ import tkinter as tk
 import tkinter.font as tkf
 import tkinter.messagebox as tkm
 import sys
-import time
-
+import random
 
 """
 =====================================================================
@@ -12,46 +11,44 @@ import time
 """
 
 class Game(tk.Frame):
-    # TODO: change to frame child
-
     """
     Game GUI... creates playboard for a round
-    master: tkinter master
+    parent: tkinter master
+    controller: is the TicTacToe class, controlls frame changeing
     board_size: sets playboard size
     p1: player 1
     p2: player 2
     """
-    def __init__(self, parent, controller, board_size, p1, p2, of_rounds):
+    def __init__(self, parent, controller, board_size, p1, p2):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.parent = parent
-        # self.frame = tk.Frame(master)
 
         self.board_size = board_size
         self.board = Board(board_size)
         self.p1 = p1
         self.p2 = p2
-        # self.ai = isinstance(self.p2, ComputerPlayer) # if AI controlled palyer
-
+        self.ai = isinstance(self.p2, AIPlayer) # if AI controlled palyer
 
         self.choose_start_player()  # sets current player
         self.round_over = False # if round over
         self.turn = 0   # rounds counter
         self.current_round = 0
-        self.of_rounds = of_rounds # TODO: change in play
 
         self.create_widgets()
 
-    def create_widgets(self):
 
+    # TODO: if AI starts the game place symbol first
+    # TODO: make ai move after players move
+
+    def create_widgets(self):
+        """creates all game widgets"""
 
         # TODO: text and shizz in parent only???
         #info frame
         self.info_frame = tk.Frame(self, bg="white")
         self.info_frame.pack(fill="both", expand=True)
-        #round label
-        self.round_label = tk.Label(self.info_frame, text="Round: {}".format(self.current_round), bg="white", fg="black", font=self.controller.NORM_FONT)
-        self.round_label.pack(side=tk.TOP, expand=True, fill='x')
+
 
         #player label
         self.player_label = tk.Label(self.info_frame, text="Player:  {}".format(self.current_player.name), bg="white", fg="black", font=self.controller.NORM_FONT)
@@ -77,11 +74,11 @@ class Game(tk.Frame):
         self.controll_frame.pack(fill='both', expand=True)
 
         #reset button
-        self.reset_button = tk.Button(self.controll_frame, text="Reset", bg='white',font=self.controller.NORM_FONT, command=lambda: self.reset())
+        self.reset_button = tk.Button(self.controll_frame, text="Reset", bg='white',font=self.controller.NORM_FONT, command=lambda: self.really_reset())
         self.reset_button.pack(side=tk.LEFT, expand=True, fill='x')
 
         #exit button
-        self.exit_button = tk.Button(self.controll_frame, text="Exit", bg='white',font=self.controller.NORM_FONT, command=lambda: self.back_to_sett_menu())
+        self.exit_button = tk.Button(self.controll_frame, text="Exit", bg='white',font=self.controller.NORM_FONT, command=lambda: self.really_quit())
         self.exit_button.pack(side=tk.RIGHT, expand=True, fill='x')
 
     def create_board(self):
@@ -99,9 +96,28 @@ class Game(tk.Frame):
     def play(self):
         pass
 
+    def move(self, coords):
+        """represents players move, places maark on buttons coordinates"""
+        y, x = coords
+        self.board.place_symbol(x, y, self.current_player.symbol)   # place to board
+        self.place_symbol(x, y)   # place to button
+
+    def ai_move(self):
+        coords = self.p2.random_move(self.board)
+        x, y = coords
+        print (coords)
+        self.place_symbol(x, y)
+        # self.p2.move(self.board)
+        self.buttons[y][x].configure(text=self.p2.symbol)
+
+        if self.is_round_end():
+            self.handle_round_end()
+        else:
+            self.change_players()
+
     def click(self, button):
         """represents a click action on button"""
-        if not self.round_end():    # if game hastn't ended
+        if not self.is_round_end():    # if game hastn't ended
             # TODO: add if ai
 
             coords = self.get_bttn_coords(button)   # retrieve buttons coordinates
@@ -109,20 +125,25 @@ class Game(tk.Frame):
                 self.move(coords)   # place symbol
                 self.turn += 1          # iterate turns
 
-                if self.round_end():    # if draw or won
-
-                    if self.its_win():      # if round won
-                        self.win_handle()
-                    else:                   # if draw
-                        self.draw_handle()
-
-                    if self.ask_play_again():   # ask whether to play again
-                        self.new_round()        # start new round
-                    else:
-                        self.back_to_sett_menu()
-                              # quit if player doesnt wants another round
+                if self.is_round_end():    # if draw or won
+                    self.handle_round_end()
                 else:
                     self.change_players()   # change current player
+                    if self.ai:
+                        self.ai_move()  # AI move
+                        self.turn += 1
+
+    def handle_round_end(self):
+        """handles actions if round has ended"""
+        if self.its_win():      # if round won
+            self.win_handle()
+        else:                   # if draw
+            self.draw_handle()
+
+        if self.ask_play_again():   # ask whether to play again
+            self.new_round()        # start new round
+        else:
+            self.back_to_sett_menu()  # quit if player doesnt wants another round
 
     def its_draw(self):
         """check if round is a draw"""
@@ -132,7 +153,7 @@ class Game(tk.Frame):
         """check if round was won by one of the players"""
         return self.board.check_win(self.current_player)
 
-    def round_end(self):
+    def is_round_end(self):
         """check if round has ended"""
         return self.its_win() or self.its_draw()
 
@@ -164,11 +185,7 @@ class Game(tk.Frame):
         """places current players symbol on the button"""
         self.buttons[y][x].configure(text=self.current_player.symbol)
 
-    def move(self, coords):
-        """represents players move, places maark on buttons coordinates"""
-        y, x = coords
-        self.board.place_symbol(x, y, self.current_player.symbol)   # place to board
-        self.place_symbol(x, y)   # place to button
+
 
     def new_round(self):
         """sets stuff for another round of the game"""
@@ -254,11 +271,19 @@ class Game(tk.Frame):
         elif self.p1.score < self.p2.score:
             return self.p2.name + "is the total wiener schnitzel"
 
+    def total_wiener_msg(self):
+        tkm.showinfo("Game End!", self.total_wiener_schnitzel())
+
+
     def really_quit(self):
-        pass
+        if tkm.askyesno("Exit?", "Do you really wish to end the game?"):
+            if self.is_round_end():
+                self.total_wiener_msg()
+            self.back_to_sett_menu()
 
     def really_reset(self):
-        pass
+        if tkm.askyesno("Reset?", "Do you really wish to reset the board?"):
+            self.reset()
 
     def back_to_sett_menu(self):
         self.controller.show_frame("GameSettings")
@@ -277,10 +302,15 @@ class Board(object):
     def __init__(self, size):
         self.size = size
         self.array =  [[''] * self.size for i in range(self.size)]
-        self.win_condition = size if size < 5 else size-1  # TODO: you know...
+        self.win_condition = size if size < 5 else size-1  # sets how many you need to win
+        self.about_to_win = False    # check if there is only one missing symbol
+        self.would_win_coords = ()  # coords of the cell which when taken would lead to win
 
     def print_board(self):
-        """prints playboard"""
+        """
+        prints playboard
+        just CLI stuff
+        """
         for i in range(self.size):
             for j in range(self.size):
                 print(self.array[i][j], end='')
@@ -297,8 +327,8 @@ class Board(object):
         return pos == 'O' or pos == 'X'
         # TODO: you know
 
-
     """ ========= check winner ==============="""
+
     def check_win(self, player):
         """check if round was won"""
         for i in range(self.size):
@@ -314,6 +344,15 @@ class Board(object):
         else:
             for i in range(self.win_condition):
                 if self.array[y][x + i] != player_symbol:
+                    # about to win check for AI
+                    if i == self.win_condition - 1 and self.is_empty(x + 1, y):
+                        self.about_to_win = True
+                        self.would_win_coords = (x + i, y)
+                    else:
+                        # about to win check for AI
+                        if i == self.win_condition - 1 and self.is_empty(x + 1, y):
+                            self.about_to_win = True
+                            self.would_win_coords = (x + i, y)
                     return False
             return True
 
@@ -325,6 +364,11 @@ class Board(object):
             for i in range(self.win_condition):
                 if self.array[y + i][x] != player_symbol:
                     return False
+                else:
+                    # about to win check for AI
+                    if i == self.win_condition - 1 and self.is_empty(x + 1, y):
+                        self.about_to_win = True
+                        self.would_win_coords = (x + i, y)
             return True
 
     def check_diagonaly(self, x, y, player_symbol):
@@ -342,6 +386,11 @@ class Board(object):
         for k in range(self.win_condition):
             if self.array[y + k][x + k] != player_symbol:
                 return False
+            else:
+                # about to win check for AI
+                if k == self.win_condition - 1 and self.is_empty(x + 1, y + 1):
+                    self.about_to_win = True
+                    self.would_win_coords = (x + k + 1, y + k + 1)
         return True
 
     def diagonal_up(self, x, y, player_symbol):
@@ -349,6 +398,11 @@ class Board(object):
         for k in range(self.win_condition):
             if self.array[y - k][x + k] != player_symbol:
                 return False
+            else:
+                # about to win check for AI
+                if k == self.win_condition - 1 and self.is_empty(x + 1, y + 1):
+                    self.about_to_win = True
+                    self.would_win_coords = (x + k + 1, y - k - 1)
         return True
 
     def reset(self):
@@ -356,13 +410,15 @@ class Board(object):
         self.array = [[''] * self.size for i in range(self.size)]
 
     def is_empty(self, x, y):
+        """check if board on x, y is empty"""
         return self.array[y][x] == ''
 
-    def get_ai_taken(self):
-        pass
+    # def get_ai_taken(self, AISymbol):
+    #     return = [(i,j) for i in range(self.size) for j in range(self.size) if self.array[i][j] == AIsymbol]
 
     def get_aviable_moves(self):
-        return [(i,j) for i in range(self.size) for j in range(self.size) if is_empty(j,i)]
+        """returns list aviable cells"""
+        return [(j, i) for i in range(self.size) for j in range(self.size) if self.is_empty(j, i)]
 
 
 """
@@ -387,9 +443,11 @@ class Player(object):
         self.score += 1
 
     def prev_won(self):
+        """sets won_previous to True"""
         self.won_previous = True
 
     def prev_lost(self):
+        """sets won_previes to False"""
         self.won_previous = False
 
 class HumanPlayer(Player):
@@ -399,15 +457,42 @@ class HumanPlayer(Player):
 
 class AIPlayer(Player):
     """Computer controlled player"""
-    def __init__(self, name, symbol):
+    def __init__(self, symbol):
         super(AIPlayer, self).__init__("Computer", symbol)
+        self.would_win_coords = ()
+        self.move_coords = ()
+        self.placed = []
 
-    def find_best(aviable, taken):
-        pass
+    def random_move(self, board):
+        aviable = board.get_aviable_moves()
+        self.move_coords = random.choice(aviable)
+        self.placed.append(self.move_coords)
+        print (aviable)
+        return self.move_coords
 
+    # def find_best(self, board):
+    #     aviable = board.get_aviable_moves()
+    #     if len(self.placed) > 0:
+    #         for c in aviable:
+    #             if c + 1 in
 
-    def move(self, board):
-        moves = board.get_aviable_moves()
+    # def is_neighbour(self, coords):
+    #     pass
+
+    # def about_to_win(self, board):
+    #     if not board.check_win():
+    #         if board.about_to_win:
+    #             self.move_coords = board.would_win_coords
+    #             return True
+    #     return False
+
+    # def move(self, board):
+    #     if not self.about_to_win(board):
+    #         self.find_best()
+    #     x, y = self.move_coords
+    #     board.place_symbol(x, y, self.symbol)
+    #     moves = board.get_aviable_moves()
+    #     self.placed.append(self.move_coords)
 
 
 
@@ -423,8 +508,6 @@ class StartMenu(tk.Frame):
         self.parent = parent
         self.controller = controller
         self.create_widgets()
-        # self.controller.geometry('200x200')
-
 
     def create_widgets(self):
         #label
@@ -444,13 +527,16 @@ class StartMenu(tk.Frame):
         self.button3.pack(fill='both')
 
     def raise_game_settings(self, ai):
-        if not "GameSettings" in self.controller.frames:
+        """
+        creates GameSettings frame, diffrent for Single Player and PvP game. If theere alredy is one created and the AI parameter of the existing and new frame differs, destroys the existing frame first
+        """
+        if not "GameSettings" in self.controller.frames:  # check if frame exists
             g_sett = GameSettings(self.parent, self.controller, ai)
             self.controller.add_frame("GameSettings", g_sett)
             self.controller.frames["GameSettings"].grid(row=0, column=0, sticky="nsew")
         else:
             gs = self.controller.frames["GameSettings"]
-            if not gs.ai == ai:    # if created settigns and new settings differ in ai
+            if not gs.ai == ai:    # if created settings and new settings ai differs
                 del self.controller.frames["GameSettings"]
                 # create again
                 g_sett = GameSettings(self.parent, self.controller, ai)
@@ -481,12 +567,12 @@ class GameSettings(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-
+        """creates all widgets for GameSettings"""
         # heading label
         self.label = tk.Label(self, text="Game Settings", bg='white', fg='black', font=self.controller.BIG_FONT)
         self.label.pack(expand=True, fill='both')
 
-        # settigns container
+        # settings container
         self.settings_container = tk.Frame(self, bg='white')
         self.settings_container.pack(fill='both', expand=True)
         if not self.ai:
@@ -519,7 +605,7 @@ class GameSettings(tk.Frame):
             self.p1_cont = tk.Frame(self.settings_container, bg='white')
             self.p1_cont.pack(fill='both', expand=True)
             # name label
-            self.p1_name_label = tk.Label(self.p1_cont, bg='white', text='Player 1: ')
+            self.p1_name_label = tk.Label(self.p1_cont, bg='white', text='Player: ')
             self.p1_name_label.pack(side=tk.LEFT, expand=True, fill='x')
             # entry field
             self.p1_name = tk.Entry(self.p1_cont)
@@ -549,57 +635,78 @@ class GameSettings(tk.Frame):
         self.back_button.pack(side=tk.RIGHT, expand=True, fill='x')
 
     def set_players(self):
-        # name2 = input("Player 2 (O), choose your name: ")
-        # self.p1 = HumanPlayer(self.get_player_name(), "X")
-        # self.p2 = HumanPlayer(self.get_player_name(), "O")
+        """retrieves players names from entries"""
         name1 = self.p1_name.get()
         self.p1 = HumanPlayer(name1, "X")
         if not self.ai:
             name2 = self.p2_name.get()
             self.p2 = HumanPlayer(name2, "O")
+        else:
+            self.p2 = AIPlayer("O")
 
     def set_board_size(self):
+        """retrieves board_size from entry"""
         self.board_size = int(self.b_size_entry.get())
 
     def set_game(self):
+        """sets the game with given settings"""
         self.set_board_size()
         self.set_players()
         self.board = Board(self.board_size)
+        self.game = Game(
+            self.parent,
+            self.controller,
+            self.board_size,
+            self.p1,
+            self.p2
+        )
 
     def check_all_correct(self):
-        # TODO: int, >, <
-        return self.board_size > 2 and self.board_size < 10
-        pass
+        """check if entries filled correctly"""
+        size = int(self.b_size_entry.get())
+        if size < 3 or size > 10:
+            self.warning_handle("Board size must be > 2 and < 11")
+            return False
+        return True
+        # TODO: move all to set
 
     def check_all_set(self):
-        # TODO: players names
-        if self.not_filled(self.p1_name) or \
-        self.not_filled(self.p2_name) or \
-        self.not_filled(self.b_size_entry):
-            self.warning_handle("just fill it all you lazy fuck")
+        """check if all entries are filled"""
+        if self.not_filled(self.p1_name):
+            self.warning_handle("Your name, Sir!")
+            return False
+
+        if not self.ai and self.not_filled(self.p2_name):
+            self.warning_handle("Wie heisst du?!")
+            return False
+
+        if self.not_filled(self.b_size_entry):
+            self.warning_handle("Just fill it all! Cant't hurt that much!")
             return False
         return True
 
     def warning_handle(self, message):
-        """handles warning messages on warning label"""
+        """handles warning messages on the warning label"""
         self.warning_label["text"] = message
 
     def not_filled(self, entry):
+        """checks if entry is filled"""
         return entry.get() == ''
 
     def start_game(self):
+        """
+        if all settings are set, starts a game, switches frame to game frame
+        """
         if self.check_all_set():
-            self.set_game()
-            self.game = Game(self.parent, self.controller, self.board_size, self.p1, self.p2, 3)
-            # self.game = Game(self.parent, self.controller)
-            self.controller.add_frame("Game", self.game)
-            self.controller.frames["Game"].grid(row=0, column=0, sticky="nsew")
+            if self.check_all_correct():
+                # set game settings
+                self.set_game()
+                # add game frame to fraems dictionary
+                self.controller.add_frame("Game", self.game)
+                self.controller.frames["Game"].grid(row=0, column=0, sticky="nsew")
+                # show game frame
+                self.controller.show_frame("Game")
 
-            #show game frame
-            self.controller.show_frame("Game")
-
-            # self.controller.add_frame("GameSettings", g_sett)
-            # self.controller.show_frame("GameSettings")
 
 """
 ======================================================================
@@ -624,25 +731,19 @@ class TicTacToe(tk.Tk):
 
         self.frames = {}
 
-        # self.frames["GameSettings"] = GameSettings(container, self)
-        # self.frames["Game"] = Game(container, self)
-        # for F in (Game, GameSettings, StartMenu):
-        #     page_name = F.__name__
-        #     frame = F(parent=container, controller=self)
-            # frame.grid(row=0, column=0, sticky="nsew")
-            # self.frames[page_name] = frame
-
         self.frames["StartMenu"] = StartMenu(parent=container, controller=self)
         self.frames["StartMenu"].grid(row=0, column=0, sticky="nsew")
 
         # show star menu as first frame
         self.show_frame("StartMenu")
 
-    def show_frame(self, page_name):
-        frame = self.frames[page_name]
+    def show_frame(self, frame_name):
+        """shows frame with given name"""
+        frame = self.frames[frame_name]
         frame.tkraise()
 
     def add_frame(self, name, frame):
+        """adds frame to frame dictionary"""
         self.frames[name] = frame
 
 
