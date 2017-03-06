@@ -96,42 +96,25 @@ class Game(tk.Frame):
     def play(self):
         pass
 
-    def move(self, coords):
-        """represents players move, places maark on buttons coordinates"""
-        y, x = coords
-        self.board.place_symbol(x, y, self.current_player.symbol)   # place to board
-        self.place_symbol(x, y)   # place to button
-
-    def ai_move(self):
-        coords = self.p2.random_move(self.board)
-        x, y = coords
-        print (coords)
-        self.place_symbol(x, y)
-        # self.p2.move(self.board)
-        self.buttons[y][x].configure(text=self.p2.symbol)
+    def handle_move(self, coords):
+        x, y  = coords
+        self.board.place_symbol(x, y, self.current_player.symbol) # place to board
+        self.place_symbol(x, y) # place to button
 
         if self.is_round_end():
             self.handle_round_end()
         else:
             self.change_players()
+            self.turn += 1
 
     def click(self, button):
-        """represents a click action on button"""
+        """represents a click action on a button"""
         if not self.is_round_end():    # if game hastn't ended
-            # TODO: add if ai
-
             coords = self.get_bttn_coords(button)   # retrieve buttons coordinates
             if self.can_move(coords):   # if correct coords
-                self.move(coords)   # place symbol
-                self.turn += 1          # iterate turns
-
-                if self.is_round_end():    # if draw or won
-                    self.handle_round_end()
-                else:
-                    self.change_players()   # change current player
-                    if self.ai:
-                        self.ai_move()  # AI move
-                        self.turn += 1
+                self.handle_move(coords)   # place symbol
+                if self.ai: # if computer player play it's move
+                    self.handle_move(self.p2.move(self.board))
 
     def handle_round_end(self):
         """handles actions if round has ended"""
@@ -169,7 +152,7 @@ class Game(tk.Frame):
     def get_bttn_coords(self, button):
         """retrieves button coordinates"""
         info = button.grid_info()
-        coords = (info["row"], info["column"])
+        coords = (info["column"], info["row"])
         return coords
 
     def can_move(self, coords):
@@ -184,8 +167,6 @@ class Game(tk.Frame):
     def place_symbol(self, x, y):
         """places current players symbol on the button"""
         self.buttons[y][x].configure(text=self.current_player.symbol)
-
-
 
     def new_round(self):
         """sets stuff for another round of the game"""
@@ -323,7 +304,7 @@ class Board(object):
 
     def already_taken(self, coords):
         """check if cell is already taken"""
-        pos = self.array[coords[0]][coords[1]]
+        pos = self.array[coords[1]][coords[0]]
         return pos == 'O' or pos == 'X'
         # TODO: you know
 
@@ -400,7 +381,7 @@ class Board(object):
                 return False
             else:
                 # about to win check for AI
-                if k == self.win_condition - 1 and self.is_empty(x + 1, y + 1):
+                if k == self.win_condition - 1 and self.is_empty(x + 1, y - 1):
                     self.about_to_win = True
                     self.would_win_coords = (x + k + 1, y - k - 1)
         return True
@@ -463,7 +444,7 @@ class AIPlayer(Player):
         self.move_coords = ()
         self.placed = []
 
-    def random_move(self, board):
+    def move(self, board):
         aviable = board.get_aviable_moves()
         self.move_coords = random.choice(aviable)
         self.placed.append(self.move_coords)
