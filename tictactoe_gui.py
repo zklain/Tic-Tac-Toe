@@ -452,22 +452,10 @@ class AIPlayer(Player):
         aviable = board.get_aviable_moves()
         if self.about_to_win(board):
             coords = board.would_win_coords
-            #debugging
-            # print("about to win, {}".format(coords))
         else:
             coords = random.choice(aviable)
         self.placed.append(coords)
-        # print (aviable)
         return coords
-
-    # def find_best(self, board):
-    #     aviable = board.get_aviable_moves()
-    #     if len(self.placed) > 0:
-    #         for c in aviable:
-    #             if c + 1 in
-
-    # def is_neighbour(self, coords):
-    #     pass
 
     def about_to_win(self, board):
         """checks if the other player is going to win"""
@@ -733,23 +721,7 @@ ttt = TicTacToe()
 ttt.mainloop()
 
 # TODO: validate
-# TODO: rounds
-# TODO: handle excemptions, show em on wanring label
-# TODO: cykle frames?
-# TODO: change state instread of deleting shit
+# TODO: exceptions
 # TODO: not-scalable
-# TODO: run without console
-# TODO: make exe
 # TODO: text size
-# TODO: reset - play again window
-# TODO: play again message
-# TODO: GUI for menu, Gui for game
 # TODO: AI
-# TODO: makegui inherit from game
-# TODO: exit button
-# TODO: exit buttons - destroy window??? so it wont start new...
-# TODO: add rounds
-# TODO: not quit program, quit to menu
-# TODO: add really quit???
-# TODO: show totol winner
-# TODO: add reset button
