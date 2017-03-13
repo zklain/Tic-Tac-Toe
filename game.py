@@ -183,7 +183,6 @@ class Game(tk.Frame):
         self.update_score_label()   # updates score labels
         self.change_label_p_name()  # players name
         self.clear_warning_label()  # clear warning label
-        self.turn = 0               # anulates the score
 
     def reset(self):
         """resets the plyboard when reset button clicked"""
@@ -191,6 +190,8 @@ class Game(tk.Frame):
         self.board.reset()          # resets board
         self.choose_start_player()  # chooses start player
         self.play_first_move()      # in case computer won the previous
+        self.turn = 0               # anulates the score
+        
 
     def clear_warning_label(self):
         """clears warning label messages"""
