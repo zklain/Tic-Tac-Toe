@@ -16,7 +16,7 @@ class Board(object):
     """
     def __init__(self, size):
         self.size = size
-        self.array =  [[' '] * self.size for i in range(self.size)]
+        self.array = [[' '] * self.size for i in range(self.size)]
         self.win_condition = 3 if size <= 5 else 4  # sets how many you need to win
         self.about_to_win = False    # check if there is only one missing symbol to win
         self.would_win_coords = [] # coords of the cell which when taken would lead to victory
