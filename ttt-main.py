@@ -106,8 +106,6 @@ if __name__ == '__main__':
     ttt = TicTacToe()
     ttt.mainloop()
 
-# TODO: validate
-# TODO: exceptions
 # TODO: not-scalable
 # TODO: text size
 # TODO: AI

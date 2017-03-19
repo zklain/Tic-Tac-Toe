@@ -1,7 +1,4 @@
 import tkinter as tk
-import tkinter.font as tkf
-import tkinter.messagebox as tkm
-import random
 
 import board as b
 import player as p
@@ -174,3 +171,7 @@ class GameSettings(tk.Frame):
                 # show game frame
                 self.controller.show_frame("Game")
                 self.game.play_first_move()
+
+
+# TODO: validate
+# TODO: Exceptions

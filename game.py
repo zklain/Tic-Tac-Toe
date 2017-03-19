@@ -1,7 +1,5 @@
 import tkinter as tk
-import tkinter.font as tkf
 import tkinter.messagebox as tkm
-import random
 
 import board as b
 import player as p
@@ -115,7 +113,6 @@ class Game(tk.Frame):
             self.turn += 1          # iterate turn
 
     def click(self, button):
-
         """represents a click action on a button"""
         if self.is_round_end():    # if game hastn't ended
             self.handle_round_end()
@@ -125,7 +122,6 @@ class Game(tk.Frame):
                 self.handle_move(coords)   # place symbol
                 if self.ai and self.turn > 0:                # if computer player play AI move
                     self.handle_move(self.p2.move(self.board))
-
 
     def handle_round_end(self):
         """handles actions if round has ended"""
