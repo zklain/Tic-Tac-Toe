@@ -6,7 +6,7 @@ import player as p
 
 """
 =====================================================================
-================== GAME CLASS ======================================
+================== GAME CLASS =======================================
 ======================================================================
 """
 
@@ -23,7 +23,6 @@ class Game(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.parent = parent
-
         self.board_size = board_size
         self.board = b.Board(board_size)
         self.p1 = p1    # first player
@@ -198,7 +197,6 @@ class Game(tk.Frame):
         for i in range(self.board_size):
             for j in range(self.board_size):
                 self.buttons[i][j].configure(text='')
-
 
     def warning_handle(self, message, color):
         """handles warning messages on warning label"""
