@@ -49,16 +49,18 @@ class AIPlayer(Player):
     def move(self, board):
         """returns coords for AI player move"""
         available = board.get_available_moves()
-        if board.about_to_win: # if human player is going to win
-            print("About to win, coords {}".format(board.would_win_coords))
-            # choose coords from list of coords which player has to take to win
-            coords = random.choice(board.would_win_coords)  
-            return coords
         try:
-            coords = random.choice(available)
+            if board.about_to_win: # if human player is going to win
+                print("About to win, coords {}".format(board.would_win_coords))
+                # choose coords from list of coords which player has to take to win
+                coords = random.choice(board.would_win_coords)
+            else:
+                coords = random.choice(available)
             self.placed.append(coords)
             return coords
-        except ValueError as e: 
-            print("COORDS ERROR OCCURED" + e)
+        except Exception as ex:
+            print("COORDS ERROR OCCURED" + ex)
+            pass
+
 
  

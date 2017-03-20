@@ -31,7 +31,7 @@ class Game(tk.Frame):
         self.ai = isinstance(self.p2, p.AIPlayer)  # if AI controlled palyer
         self.current_player = p1
         self.create_widgets()
-        self.turn = 0
+        self.turn = 1
 
     def create_widgets(self):
         """creates all game widgets"""
@@ -182,8 +182,8 @@ class Game(tk.Frame):
         self.reset_buttons()        # resets buttons board
         self.board.reset()          # resets board
         self.choose_start_player()  # chooses start player
+        self.turn = 1               # anulates the score
         self.play_first_move()      # in case computer won the previous
-        self.turn = 0               # anulates the score
 
     def clear_warning_label(self):
         """clears warning label messages"""
