@@ -126,7 +126,8 @@ class Board(object):
     """
     def check_other_direct(self, x, y, player_symbol):
         """
-        checks the board in other direction to check, whether the player is going to win in next turn
+        checks the board in other direction to check, 
+        whether the player is going to win in next turn
         """
         self.check_row_rl(x, y, player_symbol)
         self.check_column_up(x, y, player_symbol)
@@ -134,7 +135,7 @@ class Board(object):
 
     def check_row_rl(self, x, y, player_symbol):
         """check row from right to left"""
-        if (x - self.win_condition) + 1>= 0:
+        if (x - self.win_condition) + 1 >= 0:
             for k in range(self.win_condition):
                 if self.array[y][x - k] != player_symbol:
                     return
@@ -144,7 +145,7 @@ class Board(object):
 
     def check_column_up(self, x, y, player_symbol):
         """check column bottom to top"""
-        if (y - self.win_condition) + 1>= 0:
+        if (y - self.win_condition) + 1 >= 0:
             for k in range(self.win_condition):
                 # if all symbols so far are player symbol
                 if self.array[y - k][x] != player_symbol:   

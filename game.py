@@ -4,7 +4,6 @@ import tkinter.messagebox as tkm
 import board as b
 import player as p
 
-
 """
 =====================================================================
 ================== GAME CLASS ======================================
@@ -32,7 +31,6 @@ class Game(tk.Frame):
         self.ai = isinstance(self.p2, p.AIPlayer)  # if AI controlled palyer
         self.current_player = p1
         self.create_widgets()
-
         self.turn = 0
 
     def create_widgets(self):
@@ -102,9 +100,9 @@ class Game(tk.Frame):
 
     def handle_move(self, coords):
         """handles move on given coords"""
-        x, y = coords
-        self.board.place_symbol(x, y, self.current_player.symbol)   # place to board
-        self.place_symbol(x, y)                                     # place to button
+        x, y = coords   # split coords tuple
+        self.board.place_symbol(x, y, self.current_player.symbol)   # place symbol to board
+        self.place_symbol(x, y)                                     # place symbol to button
 
         if self.is_round_end():     # check if round ended
             self.handle_round_end() # handle ending
@@ -115,7 +113,7 @@ class Game(tk.Frame):
     def click(self, button):
         """represents a click action on a button"""
         if self.is_round_end():    # if game hastn't ended
-            self.handle_round_end()
+            self.handle_round_end() # handle end if round ended
         else:
             coords = self.get_bttn_coords(button)   # retrieve buttons coordinates
             if self.can_move(coords):   # if correct coords
@@ -161,13 +159,12 @@ class Game(tk.Frame):
 
     def can_move(self, coords):
         """check if can place symbol on given coordinates"""
-        x, y = coords
+        x, y = coords   # split coords tuple
         if not self.board.not_taken(x, y):
             self.warning_handle('Already taken!', 'red') # red warning
             return False
-        else:
-            self.warning_handle('OK!', 'green') # green OK if not taken
-            return True
+        self.warning_handle('OK!', 'green') # green OK if not taken
+        return True
 
     def place_symbol(self, x, y):
         """places current players symbol on the button"""
@@ -187,7 +184,6 @@ class Game(tk.Frame):
         self.choose_start_player()  # chooses start player
         self.play_first_move()      # in case computer won the previous
         self.turn = 0               # anulates the score
-        
 
     def clear_warning_label(self):
         """clears warning label messages"""
@@ -259,16 +255,20 @@ class Game(tk.Frame):
             return self.p2.name + " is the total wiener schnitzel"
 
     def total_wiener_msg(self):
+        """returns message announcing the winner"""
         tkm.showinfo("Game End!", self.total_wiener_schnitzel())
 
     def really_quit(self):
+        """yes/no messege window to ask whether really quit"""
         if tkm.askyesno("Exit?", "Do you really wish to end the game?"):
             self.total_wiener_msg()
             self.back_to_sett_menu()
 
     def really_reset(self):
+        """yes/no message window to ask whether really reset the board"""
         if tkm.askyesno("Reset?", "Do you really wish to reset the board?"):
             self.reset()
 
     def back_to_sett_menu(self):
+        """returns to menu - shows menu frame"""
         self.controller.show_frame("GameSettings")
