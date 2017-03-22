@@ -1,9 +1,8 @@
 import tkinter as tk
 import tkinter.messagebox as tkm
 
-import board as b
-import player as p
-
+from board import Board
+from player import Player, HumanPlayer, AIPlayer
 """
 =====================================================================
 ================== GAME CLASS =======================================
@@ -24,10 +23,10 @@ class Game(tk.Frame):
         self.controller = controller
         self.parent = parent
         self.board_size = board_size
-        self.board = b.Board(board_size)
+        self.board = Board(board_size)
         self.p1 = p1    # first player
         self.p2 = p2    # second player, AI player is always p2
-        self.ai = isinstance(self.p2, p.AIPlayer)  # if AI controlled palyer
+        self.ai = isinstance(self.p2, AIPlayer)  # if AI controlled palyer
         self.current_player = p1
         self.create_widgets()
         self.turn = 1

@@ -1,8 +1,5 @@
 import random
 
-import board as b
-import game as g
-
 
 """
 ======================================================================

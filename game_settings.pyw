@@ -1,9 +1,8 @@
 import tkinter as tk
 
-import board as b
-import player as p
-import game as g
-
+from board import Board
+from game import Game
+from player import HumanPlayer, AIPlayer, Player
 
 """
 ======================================================================
@@ -11,6 +10,7 @@ import game as g
 ======================================================================
 """
 class GameSettings(tk.Frame):
+    """Represents frame with settings."""
     def __init__(self, parent, controller, ai):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -26,7 +26,10 @@ class GameSettings(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        """creates all widgets for GameSettings"""
+        """
+        creates all widgets for GameSettings,
+        different frames are created for SP and MP.
+        """
         # heading label
         self.label = tk.Label(self, text="Game Settings", bg='white', fg='black', font=self.controller.BIG_FONT)
         self.label.pack(expand=True, fill='both')
@@ -101,12 +104,12 @@ class GameSettings(tk.Frame):
     def set_players(self):
         """retrieves players names from entries"""
         name1 = self.p1_name.get()
-        self.p1 = p.HumanPlayer(name1, "X")
+        self.p1 = HumanPlayer(name1, "X")
         if not self.ai:
             name2 = self.p2_name.get()
-            self.p2 = p.HumanPlayer(name2, "O")
+            self.p2 = HumanPlayer(name2, "O")
         else:
-            self.p2 = p.AIPlayer("O")
+            self.p2 = AIPlayer("O")
 
     def set_board_size(self):
         """retrieves board_size from entry"""
@@ -116,8 +119,8 @@ class GameSettings(tk.Frame):
         """sets the game with given settings"""
         self.set_board_size()
         self.set_players()
-        self.board = b.Board(self.board_size)
-        self.game = g.Game(
+        self.board = Board(self.board_size)
+        self.game = Game(
             self.parent,
             self.controller,
             self.board_size,

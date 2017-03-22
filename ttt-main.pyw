@@ -1,12 +1,17 @@
+"""
+Contains start menu frame class and TicTacToe (serving as main class as well as master frame).
+
+"""
+
 import tkinter as tk
 import tkinter.font as tkf
 import tkinter.messagebox as tkm
 import random
 
-from board import *
+from board import Board
 from player import *
-from game_settings import *
-from game import *
+from game_settings import GameSettings
+from game import Game
 
 
 """
@@ -15,7 +20,10 @@ from game import *
 ======================================================================
 """
 class StartMenu(tk.Frame):
-    """Start menu"""
+    """
+    Start menu class. allows player to choose between SP and MP or jsut quit. 
+    After one of the game styles is chosen a freme with GameSettings is created. 
+    """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.parent = parent
@@ -68,6 +76,10 @@ class StartMenu(tk.Frame):
 ======================================================================
 """
 class TicTacToe(tk.Tk):
+    """
+    Starts the game.
+    This class holds all the created frames in an list.
+    """
     def __init__(self):
         tk.Tk.__init__(self)
         container = tk.Frame(self, bg='white')
